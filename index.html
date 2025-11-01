@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vamsi Kattera | AI Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-color: #222222;
+  --text-color: #f0f0f0;
+  --accent-color: #39ff14; /* Neon green */
+  --secondary-color: #333333;
+}
+body.light {
+  --bg-color: #f5f5f5;
+  --text-color: #111;
+  --accent-color: #00aaff;
+  --secondary-color: #e0e0e0;
+}
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  scroll-behavior: smooth;
+  transition: background 0.5s, color 0.5s;
+  overflow-x: hidden;
+}
+#bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; }
+
+section { width:100vw; padding:0.8rem 5%; opacity:0; transform:translateY(50px); transition: all 1s ease-out; box-sizing:border-box; }
+section.visible { opacity:1; transform:translateY(0); }
+
+/* Pop-up animation for inner content */
+section h2, section h3, section p, section img, .timeline, .projects, .skills {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  transition: all 0.6s ease-out;
+}
+section.visible h2,
+section.visible h3,
+section.visible p,
+section.visible img,
+section.visible .timeline,
+section.visible .projects,
+section.visible .skills {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+h2 { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); display:inline-block; padding-bottom:0.2rem; margin-bottom:1rem; }
+h3 { color: var(--accent-color); margin-bottom:0.5rem; }
+
+.top-section { text-align:center; margin-bottom:3rem; }
+.top-section h1 { font-size:2.5rem; color:var(--accent-color); margin:0; }
+.top-section p { font-size:1.2rem; color:var(--text-color); margin:0.3rem 0 1.5rem 0; }
+.nav-links { display:flex; justify-content:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; }
+.nav-links a { color:var(--accent-color); text-decoration:none; font-weight:500; opacity:0; transform:translateY(20px); transition: all 0.4s ease; }
+.nav-links a.visible { opacity:1; transform:translateY(0); }
+
+#about { display:flex; flex-wrap:wrap; gap:2rem; justify-content:center; align-items:flex-start; }
+#about img { width:280px; height:340px; border-radius:5px; border:3px solid var(--accent-color); object-fit:cover; }
+#about div { flex:1; min-width:250px; }
+
+/* #education, #experience { max-width:1000px; margin-left:auto; margin-right:auto; } */
+
+.skills { margin-top:1rem; max-width:1200px; margin-left:auto; margin-right:auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.5rem; }
+.skill-category ul { list-style:none; padding-left:0; margin-top:0; }
+.skill-category li { margin-bottom:0.3rem; }
+
+/* Projects Section Updated */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr; /* ensures equal row heights */
+  gap: 2rem; /* perfectly equal space between all cards */
+  max-width: 900px;
+  margin: 2rem auto; /* adds even spacing top and bottom */
+  justify-items: center; /* centers cards horizontally */
+  align-items: stretch; /* keeps cards uniform in height */
+}
+
+.project-card {
+  position: relative; /* allow absolute positioning inside */
+  background-color: var(--secondary-color);
+  padding: 1.5rem;
+  padding: 1.8rem 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* remove space-between */
+  align-items: center;
+  height: 260px; /* set fixed height if you want uniform size */
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.1);
+  overflow: hidden; /* ensure content doesn't overflow */
+}
+
+.project-card.scrollable {
+  height: 260px;          /* fixed card height */
+  overflow-y: auto;       /* enables vertical scrolling */
+  padding: 1rem;          /* optional, for breathing space */
+  box-sizing: border-box;
+}
+
+/* Webkit browsers (Chrome, Edge, Safari) */
+.project-card.scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.project-card.scrollable::-webkit-scrollbar-track {
+  background: var(--secondary-color);
+  border-radius: 5px;
+}
+
+.project-card.scrollable::-webkit-scrollbar-thumb {
+  background-color: var(--accent-color);
+  border-radius: 5px;
+  border: 2px solid var(--secondary-color);
+}
+
+/* Firefox */
+.project-card.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-color) var(--secondary-color);
+}
+
+.project-content {
+  max-height: 140px; /* adjust based on your card height */
+  overflow-y: auto;
+  text-align: left;
+  padding-right: 5px; /* prevents scrollbar overlap */
+}
+
+.project-content ul {
+  padding-left: 1.2rem;
+  margin: 0.5rem 0;
+  list-style-type: disc;
+}
+
+.project-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 0 18px rgba(57, 255, 20, 0.4);
+}
+
+.project-card h3 {
+  margin-top: 0;
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.project-card p {
+  color: var(--text-color);
+  font-size: 0.95rem;
+  margin: 0.8rem 0;
+  line-height: 1.4;
+}
+
+.project-card div {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.project-card button {
+  padding: 0.5rem 1.1rem;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.project-card button:hover {
+  background-color: #00ff9c;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .projects { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .project-card { height: auto; }
+}
+
+.timeline { border-left:none; margin-left:0; padding-left:0; max-width:1000px; margin-left:auto; margin-right:auto; }
+.timeline-item::before { content:none; }
+.timeline-item .year { font-weight:bold; color:var(--accent-color); display:inline-block; margin-bottom:0.3rem; }
+.timeline-item p { margin:0 0 0.8rem 0; font-size:1.1rem; color:var(--text-color); }
+.timeline-item p:last-child {
+  font-size: 1rem;        /* slightly smaller */
+  color: #aaaaaa;               /* lighter text */
+  font-weight: 300;          /* thinner */
+  margin-top: 0rem;        /* small spacing from previous line */
+}
+
+.contact a {
+  margin: 0 0.5rem;
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: all 0.4s ease, filter 0.4s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  display: inline-block;
+}
+.contact a.visible { opacity: 1; transform: translateY(0); }
+.contact a:hover { filter: drop-shadow(0 0 10px var(--accent-color)); transform: translateY(-3px); }
+
+.download-cv {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+  text-decoration: none;
+  transition: all 0.4s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.download-cv.visible { opacity: 1; transform: translateY(0); }
+.download-cv:hover { filter: drop-shadow(0 0 10px var(--accent-color)); transform: translateY(-3px); }
+
+footer {
+  text-align:center;
+  padding:2rem;
+  background-color:var(--secondary-color);
+  margin-top:3rem;
+  color:#888;
+}
+
+#experience { display: none; }
+
+
+@media(max-width:1024px){ .top-section h1{font-size:2rem;} }
+@media(max-width:768px){ #about{flex-direction:column; text-align:center;} }
+@media(max-width:480px){ .nav-links{flex-wrap:wrap; justify-content:center;} }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<section class="top-section">
+  <h1>VAMSI KATTERA</h1>
+  <p>AI Engineer | Deep Learning Enthusiast</p>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#education">Education</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+     <!-- <a href="#experience">Experience</a> -->
+    <a href="#contact">Contact</a>
+  </div>
+</section>
+
+<section id="about">
+  <div>
+    <h2>About Me</h2>
+    <p>
+      I am an aspiring AI Engineer with a strong passion for building intelligent systems that transform complex challenges into practical solutions. 
+      My key areas of interest include <strong>Computer Vision, Natural Language Processing (NLP), Reinforcement Learning, and Robotics simulation using PyBullet</strong>.
+    </p>
+    <p>
+      I have hands-on experience in <strong>Python, TensorFlow, Keras, PyTorch, OpenCV, scikit-learn, and Pandas</strong>, which allows me to design, train, and deploy machine learning and deep learning models end-to-end. 
+      I also have practical knowledge in deploying AI applications using web frameworks and cloud platforms.
+    </p>
+    <p>
+      Beyond coding, I focus on translating technical solutions into real-world impact. I am enthusiastic about <strong>AI-powered automation, predictive analytics, and human-centered AI solutions</strong>. 
+      I enjoy collaborating on projects that require both creativity and technical expertise to solve challenging problems.
+    </p>
+    <p>
+      My career goal is to contribute to innovative AI systems that create meaningful impact in both industry and society. I am continuously learning emerging technologies and exploring new domains to stay ahead in the AI landscape.
+    </p>
+  </div>
+  <img src="profile.jpg" alt="My Profile Photo">
+</section>
+
+<section id="education">
+  <h2>Education</h2>
+  <div class="timeline">
+    <div class="timeline-item"><span class="year">JAN-2026</span><p>Masters - UNIVERSITY OF STRATHCLYDE, SCOTLAND, UK</p><p>Advanced Computer Science</p></div>
+    <div class="timeline-item"><span class="year">2024</span><p>Under-Grad - KALLAM HARANADHAREDDY INSTITUTE OF TECHNOLOGY, INDIA</p><p>Computer Science and Engineering</p></div>
+  </div>
+</section>
+
+<section id="skills">
+  <h2>Skills</h2>
+  <div class="skills">
+    <div class="skill-category">
+      <h3>Mathematics</h3>
+      <ul><li>Linear Algebra</li><li>Calculus</li><li>Probability & Statistics</li></ul>
+    </div>
+    <div class="skill-category">
+      <h3>AI / ML</h3>
+      <ul><li>Machine Learning</li><li>Deep Learning</li><li>CNN</li><li>RNN</li><li>LSTMs</li><li>Computer Vision</li><li>Word Embeddings</li><li>NLP</li><li>Sentiment Analysis</li></ul>
+    </div>
+    <div class="skill-category">
+      <h3>Tools</h3>
+      <ul><li>Python</li><li>TensorFlow</li><li>Keras</li><li>scikit-learn</li><li>Wix Studio</li><li>ChatGPT</li><li>Figma</li><li>Adobe</li><li>Google Workspace</li><li>Canva</li><li>MS Office</li></ul>
+    </div>
+    <div class="skill-category">
+      <h3>Design</h3><ul><li>UI/UX Design</li></ul>
+    </div>
+    <div class="skill-category">
+      <h3>Marketing / Content</h3><ul><li>Content Strategy</li><li>Copywriting</li><li>Storytelling</li></ul>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <h2>Projects</h2>
+  <div class="projects">
+    <div class="project-card">
+      <h3>GenAI-Powered Adaptive Coding & Quiz Platform</h3>
+      <p>An intelligent learning platform that dynamically generates coding challenges, evaluates user submissions, and provides hint-based feedback through generative AI reasoning.</p>
+      <div>
+        <button onclick="window.open('https://github.com/Vamsi-Kattera/Coding-Challenges-using-GENAI')">GitHub</button>
+        <button onclick="window.open('https://coding-challenges-using-genai-apghjfn2ffcn95bmnvzrpn.streamlit.app/','_blank')">Live Demo</button>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <h3>AI or Real Image Detector</h3>
+      <p>Developed an AI-powered image authenticity detector using transfer learning with MobileNetV2 to distinguish between AI-generated and real images. The model was trained on a custom dataset and deployed via Streamlit for real-time, user-interactive predictions.</p>
+      <div>
+        <button onclick="window.open('https://github.com/Vamsi-Kattera/AI-or-Real-Image-Detector')">GitHub</button>
+        <button onclick="window.open('https://ai-or-real-image-detector-dzurk3mbamadabf3d29skz.streamlit.app/','_blank')">Live Demo</button>
+      </div>
+    </div> 
+
+<div class="project-card scrollable">
+  <h3>Personal AI Assistant (JARVIS INSPIRED)</h3>
+  <p>
+    Building an intelligent personal voice assistant named <strong>Jackey</strong>, capable of:
+    <ul>
+      <li>Offline wake-word detection using <strong>Picovoice Porcupine</strong> ("Brother Jackey")</li>
+      <li>Conversational interaction powered by <strong>Google Gemini API</strong></li>
+      <li>Executing voice commands to open applications and control the system</li>
+      <li>Smart responses, memory recall, and personalized greetings</li>
+      <li>Silent background startup with <strong>pythonw.exe</strong> and autostart scripts</li>
+    </ul>
+    This project combines <strong>Python, Speech Recognition, Text-to-Speech, Picovoice SDK, and AI integration</strong>
+    to create a smart, always-on assistant — inspired by <em>Iron Man’s JARVIS</em>.
+  </p>
+  <div>
+    <button onclick="window.open('https://github.com/Vamsi-Kattera/JACKEY-AI-ASSISTANT')">GitHub</button>
+    <button onclick="window.open('jackey_demo_video.mp4', '_blank')">Live Demo</button>
+  </div>
+</div>
+
+    <div class="project-card">
+      <h3>Real-Time Object Detection AI</h3>
+      <p>Coming soon.......</p>
+      <div>
+        <button onclick="window.open('https://github.com/yourgithub/chatbot-ai','_blank')">GitHub</button>
+        <button onclick="window.open('https://your-live-demo-link.com','_blank')">Live Demo</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <h2>Experience / Internships</h2>
+  <div class="timeline">
+    <div class="timeline-item"><span class="year">2023</span><p>AI Intern - ABC Technologies</p></div>
+    <div class="timeline-item"><span class="year">2024</span><p>ML Intern - XYZ Labs</p></div>
+  </div>
+</section>
+
+<section id="contact">
+  <h2>Contact</h2>
+  <p class="contact">
+    <a href="mailto:vamsikattera15@gmail.com" target="_blank">
+      <svg viewBox="0 0 24 24" width="24" height="24"><path fill="var(--accent-color)" d="M2,4l10,7L22,4v16H2V4z"/></svg>
+    </a>
+    <a href="https://github.com/Vamsi-Kattera" target="_blank">
+      <svg viewBox="0 0 24 24" width="24" height="24"><path fill="var(--accent-color)" d="M12,0.5C5.37,0.5,0,5.87,0,12.5c0,5.29,3.438,9.77,8.207,11.387c0.6,0.113,0.793-0.263,0.793-0.583 c0-0.288-0.01-1.049-0.015-2.057c-3.338,0.726-4.042-1.61-4.042-1.61c-0.546-1.387-1.333-1.756-1.333-1.756c-1.09-0.745,0.082-0.73,0.082-0.73 c1.205,0.084,1.839,1.238,1.839,1.238c1.07,1.834,2.807,1.304,3.492,0.997c0.108-0.775,0.418-1.305,0.76-1.605 c-2.665-0.303-5.467-1.332-5.467-5.931c0-1.309,0.467-2.381,1.235-3.221c-0.123-0.303-0.535-1.523,0.117-3.176 c0,0,1.008-0.323,3.3,1.23c0.957-0.266,1.983-0.399,3.003-0.404c1.02,0.005,2.047,0.138,3.006,0.404c2.288-1.553,3.293-1.23,3.293-1.23 c0.655,1.653,0.243,2.873,0.12,3.176c0.77,0.84,1.232,1.912,1.232,3.221c0,4.609-2.807,5.625-5.479,5.921 c0.43,0.37,0.814,1.096,0.814,2.209c0,1.594-0.014,2.879-0.014,3.27c0,0.322,0.192,0.699,0.801,0.581C20.565,22.268,24,17.788,24,12.5 C24,5.87,18.627,0.5,12,0.5z"/></svg>
+    </a>
+    <a href="https://www.linkedin.com/in/vamsi-kattera-ba75aa331/" target="_blank">
+      <svg viewBox="0 0 24 24" width="24" height="24"><path fill="var(--accent-color)" d="M22.23,0H1.77C0.79,0,0,0.774,0,1.729v20.542C0,23.225,0.79,24,1.77,24h20.459 C23.206,24,24,23.225,24,22.271V1.729C24,0.774,23.206,0,22.23,0z M7.081,20.452H3.554V9h3.527V20.452z M5.318,7.433 c-1.133,0-2.052-0.921-2.052-2.056c0-1.134,0.919-2.056,2.052-2.056c1.135,0,2.055,0.922,2.055,2.056 C7.373,6.512,6.453,7.433,5.318,7.433z M20.452,20.452h-3.527v-5.943c0-1.417-0.028-3.243-1.977-3.243 c-1.978,0-2.281,1.545-2.281,3.139v6.047h-3.527V9h3.389v1.561h0.047c0.472-0.894,1.623-1.835,3.339-1.835 c3.571,0,4.229,2.35,4.229,5.396V20.452z"/></svg>
+    </a>
+  </p>
+  <a href="vamsi_kattera_CV.pdf" class="download-cv">Download CV</a>
+</section>
+
+<footer>&copy; Vamsi Kattera | AI Engineer </footer>
+
+<script>
+// Fade-in sections on scroll with inner pop-up
+const sections = document.querySelectorAll('section');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+
+      if(entry.target.id === 'contact'){
+        document.querySelectorAll('.contact a, .download-cv').forEach((el, i) => {
+          setTimeout(() => { el.classList.add('visible'); }, i * 150);
+        });
+      }
+
+      // Animate project cards
+      if(entry.target.id === 'projects'){
+        document.querySelectorAll('.project-card').forEach((el, i) => {
+          setTimeout(() => { el.style.opacity = '1'; el.style.transform='translateY(0) scale(1)'; }, i * 200);
+        });
+      }
+    }
+  });
+},{threshold: 0.1});
+sections.forEach(section => observer.observe(section));
+
+// Animate top nav links on load
+window.addEventListener('load', ()=>{
+  document.querySelectorAll('.nav-links a').forEach((link,i)=>{
+    setTimeout(()=>{link.classList.add('visible');}, i*200);
+  });
+});
+
+// Dark/Light Theme Toggle
+function toggleTheme(){ document.body.classList.toggle('light'); }
+
+// Particle Background
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+let w=canvas.width=window.innerWidth;
+let h=canvas.height=window.innerHeight;
+window.addEventListener('resize',()=>{w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight;});
+const particles=[];
+const particleCount=80;
+const maxDistance=120;
+const colors=['#39ff14','#00fff7','#ff00ff','#ffbf00','#ff0080'];
+for(let i=0;i<particleCount;i++){
+  particles.push({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    radius:Math.random()*2+1,
+    vx:(Math.random()-0.5)*0.4,
+    vy:(Math.random()-0.5)*0.4,
+    color: colors[Math.floor(Math.random()*colors.length)]
+  });
+}
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<maxDistance){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(57,255,20,${1-dist/maxDistance})`;
+        ctx.lineWidth=1;
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  for(let p of particles){
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+    ctx.fillStyle=p.color;
+    ctx.fill();
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+</body>
+</html>
